@@ -1,0 +1,84 @@
+# Logs
+logs
+*.log
+*.tlog
+
+# Visual Studio Code
+.vscode/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build artifacts
+bin/
+obj/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Dotnet-specific
+project.lock.json
+project.assets.json
+artifact/
+
+# Rider
+.idea/
+*.sln.iml
+
+# ASP.NET Core
+wwwroot/node_modules/
+wwwroot/lib/
+
+# Database
+*.mdf
+*.ldf
+
+# Secrets
+secrets.json
+appsettings.*.json
+.env
+
+# Docker
+.dockerignore
+**/Dockerfile
+**/docker-compose*
+**/compose.override.yml
+
+# Resharper
+*.DotSettings.user
+
+# Entity Framework
+migrations/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# VS Code workspace settings
+.vscode/settings.json
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# SonarQube
+.sonarqube/
+
+# Azure DevOps
+.envrc
+.terraform/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
