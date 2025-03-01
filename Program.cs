@@ -1,13 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<EmployeeContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -16,29 +17,61 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+// Create Employee
+app.MapPost("/employees", async (EmployeeContext db, Employee employee) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    db.Employees.Add(employee);
+    await db.SaveChangesAsync();
+    return Results.Created($"/employees/{employee.Id}", employee);
 })
-.WithName("GetWeatherForecast")
+.WithName("CreateEmployee")
+.WithOpenApi();
+
+// Read All Employees
+app.MapGet("/employees", async (EmployeeContext db) =>
+    await db.Employees.ToListAsync())
+.WithName("GetAllEmployees")
+.WithOpenApi();
+
+// Read Employee by Id
+app.MapGet("/employees/{id}", async (EmployeeContext db, int id) =>
+    await db.Employees.FindAsync(id) is Employee employee
+        ? Results.Ok(employee)
+        : Results.NotFound())
+.WithName("GetEmployeeById")
+.WithOpenApi();
+
+// Update Employee
+app.MapPut("/employees/{id}", async (EmployeeContext db, int id, Employee employee) =>
+{
+    var existingEmployee = await db.Employees.FindAsync(id);
+    if (existingEmployee is null) return Results.NotFound();
+    
+    existingEmployee.FirstName = employee.FirstName;
+    existingEmployee.LastName = employee.LastName;
+    existingEmployee.Email = employee.Email;
+    existingEmployee.CPF = employee.CPF;
+    existingEmployee.Phone = employee.Phone;
+    existingEmployee.ManagerName = employee.ManagerName;
+    existingEmployee.Password = employee.Password;
+    
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+})
+.WithName("UpdateEmployee")
+.WithOpenApi();
+
+// Delete Employee
+app.MapDelete("/employees/{id}", async (EmployeeContext db, int id) =>
+{
+    var employee = await db.Employees.FindAsync(id);
+    if (employee is null) return Results.NotFound();
+    
+    db.Employees.Remove(employee);
+    await db.SaveChangesAsync();
+    return Results.Ok();
+})
+.WithName("DeleteEmployee")
 .WithOpenApi();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
