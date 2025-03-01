@@ -45,8 +45,8 @@ appsettings.*.json
 
 # Docker
 .dockerignore
-**/Dockerfile
-**/docker-compose*
+# **/Dockerfile
+# **/docker-compose*
 **/compose.override.yml
 
 # Resharper
